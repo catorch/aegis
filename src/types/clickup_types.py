@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field
 
@@ -11,16 +11,49 @@ class ClickUpWorkspace(BaseModel):
     members: Optional[List[Dict[str, Any]]] = None
 
 
-class CreateWorkspaceRequest(BaseModel):
+class ClickUpTeam(BaseModel):
+    """Team represents a workspace in ClickUp API."""
+
+    id: str
     name: str
+    color: Optional[str] = None
+    avatar: Optional[str] = None
+    members: Optional[List[Dict[str, Any]]] = None
+    roles: Optional[List[Dict[str, Any]]] = None
 
 
-class UpdateWorkspaceRequest(BaseModel):
+class ClickUpWorkspaceResponse(BaseModel):
+    """Response structure for a single workspace."""
+
+    team: ClickUpTeam
+
+
+class ClickUpSpace(BaseModel):
+    id: str
     name: str
+    private: Optional[bool] = None
+    statuses: Optional[List[Dict[str, Any]]] = None
+    multiple_assignees: Optional[bool] = None
+    features: Optional[Dict[str, Any]] = None
+    archived: Optional[bool] = None
 
 
-class ClickUpApiResponse(BaseModel):
-    data: Optional[Any] = None
+class CreateSpaceRequest(BaseModel):
+    name: str
+    multiple_assignees: Optional[bool] = None
+
+
+class UpdateSpaceRequest(BaseModel):
+    name: Optional[str] = None
+    multiple_assignees: Optional[bool] = None
+
+
+# Generic response type for API responses
+T = TypeVar("T")
+
+
+class ClickUpApiResponse(BaseModel, Generic[T]):
+    data: Optional[T] = None
     error: Optional[str] = None
     status: int
 
