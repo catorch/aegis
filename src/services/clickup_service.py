@@ -5,13 +5,16 @@ import httpx
 from src.types.clickup_types import (
     ClickUpApiResponse,
     ClickUpFolder,
+    ClickUpList,
     ClickUpSpace,
     ClickUpTask,
     ClickUpWorkspace,
     ClickUpWorkspaceResponse,
     CreateFolderRequest,
+    CreateListRequest,
     CreateSpaceRequest,
     UpdateFolderRequest,
+    UpdateListRequest,
     UpdateSpaceRequest,
 )
 
@@ -329,6 +332,191 @@ class ClickUpService:
             async with httpx.AsyncClient() as client:
                 response = await client.delete(
                     f"{self.base_url}/folder/{folder_id}",
+                    headers=self._get_headers(),
+                )
+                response.raise_for_status()
+
+                return ClickUpApiResponse[None](status=response.status_code)
+        except httpx.HTTPStatusError as error:
+            return ClickUpApiResponse[None](
+                error=(
+                    error.response.json().get("err") if error.response else str(error)
+                ),
+                status=error.response.status_code if error.response else 500,
+            )
+        except httpx.RequestError as error:
+            return ClickUpApiResponse[None](error=str(error), status=500)
+
+    # List operations (full CRUD)
+
+    async def get_lists(self, folder_id: str) -> ClickUpApiResponse[List[ClickUpList]]:
+        """
+        Get all lists in a folder
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{self.base_url}/folder/{folder_id}/list",
+                    headers=self._get_headers(),
+                )
+                response.raise_for_status()
+
+                return ClickUpApiResponse[List[ClickUpList]](
+                    data=response.json()["lists"], status=response.status_code
+                )
+        except httpx.HTTPStatusError as error:
+            return ClickUpApiResponse[List[ClickUpList]](
+                error=(
+                    error.response.json().get("err") if error.response else str(error)
+                ),
+                status=error.response.status_code if error.response else 500,
+            )
+        except httpx.RequestError as error:
+            return ClickUpApiResponse[List[ClickUpList]](error=str(error), status=500)
+
+    async def get_lists_in_space(
+        self, space_id: str
+    ) -> ClickUpApiResponse[List[ClickUpList]]:
+        """
+        Get all lists in a space (folderless lists)
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{self.base_url}/space/{space_id}/list",
+                    headers=self._get_headers(),
+                )
+                response.raise_for_status()
+
+                return ClickUpApiResponse[List[ClickUpList]](
+                    data=response.json()["lists"], status=response.status_code
+                )
+        except httpx.HTTPStatusError as error:
+            return ClickUpApiResponse[List[ClickUpList]](
+                error=(
+                    error.response.json().get("err") if error.response else str(error)
+                ),
+                status=error.response.status_code if error.response else 500,
+            )
+        except httpx.RequestError as error:
+            return ClickUpApiResponse[List[ClickUpList]](error=str(error), status=500)
+
+    async def get_list(self, list_id: str) -> ClickUpApiResponse[ClickUpList]:
+        """
+        Get a specific list by ID
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.get(
+                    f"{self.base_url}/list/{list_id}", headers=self._get_headers()
+                )
+                response.raise_for_status()
+
+                return ClickUpApiResponse[ClickUpList](
+                    data=response.json(), status=response.status_code
+                )
+        except httpx.HTTPStatusError as error:
+            return ClickUpApiResponse[ClickUpList](
+                error=(
+                    error.response.json().get("err") if error.response else str(error)
+                ),
+                status=error.response.status_code if error.response else 500,
+            )
+        except httpx.RequestError as error:
+            return ClickUpApiResponse[ClickUpList](error=str(error), status=500)
+
+    async def create_list_in_folder(
+        self, folder_id: str, list_data: CreateListRequest
+    ) -> ClickUpApiResponse[ClickUpList]:
+        """
+        Create a new list in a folder
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.base_url}/folder/{folder_id}/list",
+                    json=list_data.model_dump(),
+                    headers=self._get_headers(),
+                )
+                response.raise_for_status()
+
+                return ClickUpApiResponse[ClickUpList](
+                    data=response.json(), status=response.status_code
+                )
+        except httpx.HTTPStatusError as error:
+            return ClickUpApiResponse[ClickUpList](
+                error=(
+                    error.response.json().get("err") if error.response else str(error)
+                ),
+                status=error.response.status_code if error.response else 500,
+            )
+        except httpx.RequestError as error:
+            return ClickUpApiResponse[ClickUpList](error=str(error), status=500)
+
+    async def create_list_in_space(
+        self, space_id: str, list_data: CreateListRequest
+    ) -> ClickUpApiResponse[ClickUpList]:
+        """
+        Create a new list in a space (folderless)
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.post(
+                    f"{self.base_url}/space/{space_id}/list",
+                    json=list_data.model_dump(),
+                    headers=self._get_headers(),
+                )
+                response.raise_for_status()
+
+                return ClickUpApiResponse[ClickUpList](
+                    data=response.json(), status=response.status_code
+                )
+        except httpx.HTTPStatusError as error:
+            return ClickUpApiResponse[ClickUpList](
+                error=(
+                    error.response.json().get("err") if error.response else str(error)
+                ),
+                status=error.response.status_code if error.response else 500,
+            )
+        except httpx.RequestError as error:
+            return ClickUpApiResponse[ClickUpList](error=str(error), status=500)
+
+    async def update_list(
+        self, list_id: str, updates: UpdateListRequest
+    ) -> ClickUpApiResponse[ClickUpList]:
+        """
+        Update an existing list
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.put(
+                    f"{self.base_url}/list/{list_id}",
+                    json=updates.model_dump(exclude_unset=True),
+                    headers=self._get_headers(),
+                )
+                response.raise_for_status()
+
+                return ClickUpApiResponse[ClickUpList](
+                    data=response.json(), status=response.status_code
+                )
+        except httpx.HTTPStatusError as error:
+            return ClickUpApiResponse[ClickUpList](
+                error=(
+                    error.response.json().get("err") if error.response else str(error)
+                ),
+                status=error.response.status_code if error.response else 500,
+            )
+        except httpx.RequestError as error:
+            return ClickUpApiResponse[ClickUpList](error=str(error), status=500)
+
+    async def delete_list(self, list_id: str) -> ClickUpApiResponse[None]:
+        """
+        Delete a list
+        """
+        try:
+            async with httpx.AsyncClient() as client:
+                response = await client.delete(
+                    f"{self.base_url}/list/{list_id}",
                     headers=self._get_headers(),
                 )
                 response.raise_for_status()

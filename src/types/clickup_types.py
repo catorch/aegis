@@ -1,6 +1,6 @@
-from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 
 class ClickUpWorkspace(BaseModel):
@@ -71,14 +71,53 @@ class UpdateFolderRequest(BaseModel):
     hidden: Optional[bool] = None
 
 
-# Generic response type for API responses
-T = TypeVar("T")
+class ClickUpList(BaseModel):
+    id: str
+    name: str
+    content: Optional[str] = None
+    status: Optional[Dict[str, Any]] = None
+    priority: Optional[Dict[str, Any]] = None
+    assignee: Optional[Dict[str, Any]] = None
+    task_count: Optional[int] = None
+    due_date: Optional[str] = None
+    start_date: Optional[str] = None
+    folder: Optional[Dict[str, Any]] = None
+    space: Optional[Dict[str, Any]] = None
+    archived: Optional[bool] = None
 
 
-class ClickUpApiResponse(BaseModel, Generic[T]):
-    data: Optional[T] = None
-    error: Optional[str] = None
-    status: int
+class CreateListRequest(BaseModel):
+    name: str
+    content: Optional[str] = None
+    due_date: Optional[int] = None
+    priority: Optional[int] = None
+    assignee: Optional[int] = None
+    status: Optional[str] = None
+
+
+class UpdateListRequest(BaseModel):
+    """
+    Request model for updating a ClickUp list.
+
+    Attributes:
+        name: The new name for the list.
+        content: The new content (description) for the list.
+        due_date: The due date as a UNIX timestamp in milliseconds.
+        due_date_time: Whether the due date includes a time component.
+        priority: The priority level (1-4, where 1 is urgent).
+        assignee: User ID to assign as the default assignee.
+        unset_status: Whether to unset the default status.
+        status: The new default status.
+    """
+
+    name: Optional[str] = None
+    content: Optional[str] = None
+    due_date: Optional[int] = None
+    due_date_time: Optional[bool] = None
+    priority: Optional[int] = None
+    assignee: Optional[int] = None
+    unset_status: Optional[bool] = None
+    status: Optional[str] = None
 
 
 class ClickUpTask(BaseModel):
@@ -115,25 +154,11 @@ class UpdateTaskRequest(BaseModel):
     remove_assignees: Optional[List[int]] = None
 
 
-class ClickUpList(BaseModel):
-    id: str
-    name: str
-    content: Optional[str] = None
-    status: Optional[Dict[str, Any]] = None
-    priority: Optional[Dict[str, Any]] = None
-    assignee: Optional[Dict[str, Any]] = None
-    task_count: Optional[int] = None
-    due_date: Optional[str] = None
-    start_date: Optional[str] = None
-    folder: Optional[Dict[str, Any]] = None
-    space: Optional[Dict[str, Any]] = None
-    archived: Optional[bool] = None
+# Generic response type for API responses
+T = TypeVar("T")
 
 
-class CreateListRequest(BaseModel):
-    name: str
-    content: Optional[str] = None
-    due_date: Optional[int] = None
-    priority: Optional[int] = None
-    assignee: Optional[int] = None
-    status: Optional[str] = None
+class ClickUpApiResponse(BaseModel, Generic[T]):
+    data: Optional[T] = None
+    error: Optional[str] = None
+    status: int
