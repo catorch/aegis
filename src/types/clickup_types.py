@@ -48,6 +48,29 @@ class UpdateSpaceRequest(BaseModel):
     multiple_assignees: Optional[bool] = None
 
 
+class ClickUpFolder(BaseModel):
+    id: str
+    name: str
+    orderindex: Optional[int] = None
+    override_statuses: Optional[bool] = None
+    hidden: Optional[bool] = None
+    space: Optional[Dict[str, Any]] = None
+    task_count: Optional[str] = None
+    archived: Optional[bool] = None
+    statuses: Optional[List[Dict[str, Any]]] = None
+    lists: Optional[List[Dict[str, Any]]] = None
+
+
+class CreateFolderRequest(BaseModel):
+    name: str
+    hidden: Optional[bool] = None
+
+
+class UpdateFolderRequest(BaseModel):
+    name: Optional[str] = None
+    hidden: Optional[bool] = None
+
+
 # Generic response type for API responses
 T = TypeVar("T")
 
